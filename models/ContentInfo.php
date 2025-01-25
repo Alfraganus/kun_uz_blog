@@ -1,0 +1,74 @@
+<?php
+
+namespace app\models;
+
+use Yii;
+
+/**
+ * This is the model class for table "content_info".
+ *
+ * @property int $id
+ * @property int $content_id
+ * @property string $language
+ * @property string $title
+ * @property string|null $slug
+ * @property string|null $description
+ * @property string|null $content
+ * @property string|null $content_blocks
+ * @property string|null $meta
+ *
+ * @property Content $contentParent
+ */
+class ContentInfo extends \yii\db\ActiveRecord
+{
+    /**
+     * {@inheritdoc}
+     */
+    public static function tableName()
+    {
+        return 'content_info';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rules()
+    {
+        return [
+            [['content_id', 'language', 'title'], 'required'],
+            [['content_id'], 'integer'],
+            [['description', 'content'], 'string'],
+            [['content_blocks', 'meta'], 'safe'],
+            [['language', 'title', 'slug'], 'string', 'max' => 255],
+            [['content_id'], 'exist', 'skipOnError' => true, 'targetClass' => Content::class, 'targetAttribute' => ['content_id' => 'id']],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => Yii::t('app', 'ID'),
+            'content_id' => Yii::t('app', 'Content ID'),
+            'language' => Yii::t('app', 'Language'),
+            'title' => Yii::t('app', 'Title'),
+            'slug' => Yii::t('app', 'Slug'),
+            'description' => Yii::t('app', 'Description'),
+            'content' => Yii::t('app', 'Content'),
+            'content_blocks' => Yii::t('app', 'Content Blocks'),
+            'meta' => Yii::t('app', 'Meta'),
+        ];
+    }
+
+    /**
+     * Gets query for [[Content0]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContentParent()
+    {
+        return $this->hasOne(Content::class, ['id' => 'content_id']);
+    }
+}
