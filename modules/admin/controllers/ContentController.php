@@ -5,6 +5,7 @@ namespace app\modules\admin\controllers;
 use app\models\Content;
 use app\models\ContentInfo;
 use app\models\searchmodel\ContentSearch;
+use app\modules\admin\service\ContentService;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -37,14 +38,19 @@ class ContentController extends Controller
      *
      * @return string
      */
-    public function actionIndex()
+    public function actionIndex($type = 'blog')
     {
+        if (!in_array($type, ContentService::contentTypes())) {
+            throw new NotFoundHttpException('Page not found.');
+        }
+
         $searchModel = new ContentSearch();
         $dataProvider = $searchModel->search($this->request->queryParams);
 
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
+            'type' => $type,
         ]);
     }
 
@@ -66,8 +72,12 @@ class ContentController extends Controller
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return string|\yii\web\Response
      */
-    public function actionCreate()
+    public function actionCreate($type = 'blog')
     {
+        if (!in_array($type, ContentService::contentTypes())) {
+            throw new NotFoundHttpException('Page not found.');
+        }
+
         $content = new Content();
         $info = new ContentInfo();
 
@@ -82,6 +92,7 @@ class ContentController extends Controller
         return $this->render('create', [
             'content' => $content,
             'info' => $info,
+            'type' => $type,
         ]);
     }
 

@@ -3,7 +3,6 @@
 namespace app\modules\admin;
 
 use Yii;
-use yii\web\ForbiddenHttpException;
 
 /**
  * admin module definition class
