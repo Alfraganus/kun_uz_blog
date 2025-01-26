@@ -38,9 +38,10 @@ class ContentSearch extends Content
      *
      * @return ActiveDataProvider
      */
-    public function search($params)
+    public function search($params,$type = null)
     {
         $query = Content::find();
+        $query->joinWith('contentInfos');
 
         // add conditions that should always apply here
 
@@ -56,7 +57,10 @@ class ContentSearch extends Content
             return $dataProvider;
         }
 
-        // grid filtering conditions
+        if ($type !== null) {
+            $query->andFilterWhere(['type' => $type]);
+        }
+
         $query->andFilterWhere([
             'id' => $this->id,
             'status' => $this->status,

@@ -8,15 +8,12 @@ use app\models\searchmodel\ContentSearch;
 use app\modules\admin\service\ContentService;
 use app\modules\admin\service\MediaService;
 use Yii;
-use yii\base\DynamicModel;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\UploadedFile;
 
-/**
- * ContentController implements the CRUD actions for Content model.
- */
+
 class ContentController extends Controller
 {
     /**
@@ -49,7 +46,7 @@ class ContentController extends Controller
         }
 
         $searchModel = new ContentSearch();
-        $dataProvider = $searchModel->search($this->request->queryParams);
+        $dataProvider = $searchModel->search($this->request->queryParams,$type);
 
         return $this->render('index', [
             'searchModel' => $searchModel,

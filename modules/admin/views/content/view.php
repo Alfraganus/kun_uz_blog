@@ -29,16 +29,45 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= DetailView::widget([
         'model' => $model,
         'attributes' => [
-            'id',
+            [
+                'label' => Yii::t('app', 'Image'),
+                'value' => function ($model) {
+                    $media = $model->media;
+                    if ($media) {
+                        return Html::img(sprintf('/uploads/%s',$media->file_name), ['width' => '100px', 'height' => 'auto']);
+                    }
+                    return '';
+                },
+                'format' => 'raw',
+            ],
             'type',
+            [
+                'label' => Yii::t('app', 'Title'),
+                'value' => function ($model) {
+                    return $model->contentInfos ? $model->contentInfos[0]->title : '';
+                },
+            ],
+            [
+                'label' => Yii::t('app', 'Kategoriya'),
+                'value' => function ($model) {
+                    return $model->contentCategory ? $model->contentCategory->category_name : Yii::t('app', 'Not set');
+                },
+            ],
             'status',
-            'is_deleted',
-            'cacheable',
-            'author_id',
+            [
+                'label' => Yii::t('app', 'Kim tomonidan kiritilgan'),
+                'value' => function ($model) {
+                    return $model->created_by  ? $model->createdBy->username : '';
+                },
+            ],
+            [
+                'label' =>'Avtor',
+                'value' => function ($model) {
+                    return $model->author_id  ? $model->author->username : '';
+                },
+            ],
             'created_on',
-            'created_by',
-            'updated_on',
-            'updated_by',
+
         ],
     ]) ?>
 

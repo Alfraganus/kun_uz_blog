@@ -39,10 +39,24 @@ class Content extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['status', 'is_deleted', 'cacheable', 'created_by', 'updated_by', 'content_category_id'], 'integer'],
+            [['status', 'is_deleted', 'cacheable', 'created_by','author_id', 'updated_by', 'content_category_id'], 'integer'],
             [['type', 'created_on', 'updated_on'], 'string', 'max' => 255],
             [['file_name'], 'safe'],
         ];
+    }
+
+    public function beforeSave($insert)
+    {
+        if ($insert) {
+            $this->created_on = date('Y-m-d H:i:s');
+            $this->created_by = Yii::$app->user->id;
+        }
+        else {
+            $this->updated_on = date('Y-m-d H:i:s');
+            $this->updated_by = Yii::$app->user->id;
+        }
+
+        return parent::beforeSave($insert);
     }
 
     /**
@@ -55,6 +69,7 @@ class Content extends \yii\db\ActiveRecord
             'file_name' => Yii::t('app', 'Rasm'),
             'type' => Yii::t('app', 'Turi'),
             'status' => Yii::t('app', 'Holati'),
+            'author_id' => Yii::t('app', 'Avtor'),
             'is_deleted' => Yii::t('app', 'O‘chirildi'),
             'cacheable' => Yii::t('app', 'Keshlash mumkin'),
             'created_on' => Yii::t('app', 'Yaratilgan sana'),
@@ -78,4 +93,21 @@ class Content extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Categories::class, ['id' => 'content_category_id']);
     }
+
+    public function getCreatedBy()
+    {
+        return $this->hasOne(User::class, ['id' => 'created_by']);
+    }
+
+    public function getAuthor()
+    {
+        return $this->hasOne(User::class, ['id' => 'author_id']);
+    }
+
+    public function getMedia()
+    {
+        return $this->hasOne(Media::class, ['object_id' => 'id']);
+    }
+
+
 }

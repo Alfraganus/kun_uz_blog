@@ -34,9 +34,9 @@ class ContentInfo extends \yii\db\ActiveRecord
     {
         if (parent::beforeSave($insert)) {
             $this->slug = Inflector::slug($this->title, '-');
-            return true; // This is necessary to continue the save process
+            return true;
         }
-        return false; // In case parent::beforeSave($insert) returns false
+        return false;
     }
     /**
      * {@inheritdoc}

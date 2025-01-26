@@ -23,8 +23,8 @@ class MediaService
         $filePath = $uploadPath . $fileName;
 
         if ($uploadedFile->saveAs($filePath)) {
-            $model->file_name = sprintf('%s%s'.'%s',  uniqid(),$uploadedFile->name, $uploadedFile->extension);
-            $model->file_url = "/uploads/$filePath";
+            $model->file_name =$fileName;
+            $model->file_url = $filePath;
             $model->object_id = $content->id;
             $model->model_class = $content::className();
 
