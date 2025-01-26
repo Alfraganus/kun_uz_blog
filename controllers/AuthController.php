@@ -126,11 +126,6 @@ class AuthController extends Controller
      *
      * @return Response
      */
-    public function actionLogout()
-    {
-        Yii::$app->user->logout();
-        Yii::$app->session->remove('auth');
-        return $this->goHome();
-    }
+
 
 }

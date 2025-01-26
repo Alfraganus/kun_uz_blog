@@ -99,7 +99,7 @@ class ContentController extends Controller
                         }
 
                         $transaction->commit();
-                        return $this->redirect(['view', 'id' => $content->id]);
+                        return $this->redirect(['index', 'type' =>$type]);
                     }
                 }
             } catch (\Exception $e) {
@@ -147,7 +147,7 @@ class ContentController extends Controller
                         }
 
                         $transaction->commit();
-                        return $this->redirect(['view', 'id' => $content->id]);
+                        return $this->redirect(['index', 'type' =>$type]);
                     }
                 }
             } catch (\Exception $e) {
@@ -172,11 +172,23 @@ class ContentController extends Controller
      * @return \yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDelete($id)
+    public function actionDelete($id,$type)
     {
-        $this->findModel($id)->delete();
+        $content = $this->findModel($id);
 
-        return $this->redirect(['index']);
+        if ($content->media) {
+            $mediaFilePath = Yii::getAlias('@webroot/uploads/') . $content->media->file_name;
+            if (file_exists($mediaFilePath)) {
+                unlink($mediaFilePath);
+            }
+            $content->media->delete();
+        }
+
+        ContentInfo::deleteAll(['content_id' => $id]);
+
+        $content->delete();
+
+        return $this->redirect(['index', 'type' => $type]);
     }
 
     /**

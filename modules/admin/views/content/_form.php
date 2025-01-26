@@ -38,7 +38,7 @@ use yii\helpers\Url;
                 <?= Accordion::widget([
                     'items' => [
                         [
-                            'label' => 'General Information',
+                            'label' => 'Umumiy',
                             'content' =>
                                 $form->field($info, 'title')->textInput(['maxlength' => true]) .
                                 $form->field($info, 'description')->textarea(['rows' => 4]) .
@@ -53,7 +53,7 @@ use yii\helpers\Url;
 
                         ],
                         [
-                            'label' => 'Metadata',
+                            'label' => 'Meta (kelajak uchun)',
                             'content' =>
                                 $form->field($info, 'content_blocks')->textarea(['rows' => 4]) .
                                 $form->field($info, 'meta')->textarea(['rows' => 3]),
@@ -77,10 +77,8 @@ use yii\helpers\Url;
 
                         <?= $form->field($content, 'content_category_id')->dropDownList(ArrayHelper::map(
                             Categories::find()->where(['category_type' => $type])->all(), 'id', 'category_name'
-                        )) ?>
-                        <?= $form->field($content, 'status')->dropDownList(
-                                [1 => 'Active', 0 => 'Inactive'], ['class' => 'form-control']);
-                       ?>
+                        ))->label('Kategoriya') ?>
+
                         <?php if ($content->isNewRecord): ?>
                             <?= $form->field($info, 'language')->dropDownList(Yii::$app->params['languages']); ?>
                         <?php else: ?>
@@ -106,18 +104,21 @@ use yii\helpers\Url;
                             </div>
                         </center>
                         <?= $form->field($content, "file_name")->fileInput(['id' => 'file-input', 'accept' => 'image/*']); ?>
+                        <?= $form->field($content, 'status')->dropDownList(
+                            [1 => 'Active', 0 => 'Inactive'], ['class' => 'form-control']);
+                        ?>
                     </div>
                 </div>
+                   <center>
+                       <div class="form-group">
+                           <?= Html::submitButton('Saqlash', ['class' => 'btn btn-primary']) ?>
+                       </div>
+                   </center>
             </div>
-            <div class="row">
-                <div class="form-group">
-                    <?= Html::submitButton('Save', ['class' => 'btn btn-primary']) ?>
-                </div>
 
                 <?php ActiveForm::end(); ?>
             </div>
         </div>
-    </div>
 </section
 
 

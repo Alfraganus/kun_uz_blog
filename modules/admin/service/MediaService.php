@@ -5,7 +5,6 @@ namespace app\modules\admin\service;
 use app\models\Content;
 use app\models\Media;
 use Yii;
-use yii\base\Model;
 use yii\web\UploadedFile;
 
 class MediaService

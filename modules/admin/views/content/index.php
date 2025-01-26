@@ -42,7 +42,7 @@ $currentLanguage = Yii::$app->language;
                 'format' => 'raw',
             ],
             [
-                'label' => Yii::t('app', 'Title'),
+                'label' => Yii::t('app', 'Sarloha'),
                 'value' => function ($model) {
                     return $model->contentInfos ? $model->contentInfos[0]->title : '';
                 },
@@ -132,8 +132,8 @@ $currentLanguage = Yii::$app->language;
                         return $buttons;
                     },
                 ],
-                'urlCreator' => function ($action, Content $model, $key, $index, $column) {
-                    return Url::toRoute([$action, 'id' => $model->id]);
+                'urlCreator' => function ($action, Content $model, $key, $index, $column) use ($type) {
+                    return Url::toRoute([$action,'id'=>$model->id, 'type' =>$type]);
                 },
             ],
         ],
