@@ -17,7 +17,6 @@ class CabinetAsset extends AssetBundle
         'plugins/icheck-bootstrap/icheck-bootstrap.min.css',
         'plugins/jqvmap/jqvmap.min.css',
         'dist/css/adminlte.min.css',
-        'css/site.css',
         'plugins/overlayScrollbars/css/OverlayScrollbars.min.css',
         'plugins/daterangepicker/daterangepicker.css',
         'plugins/summernote/summernote-bs4.min.css',

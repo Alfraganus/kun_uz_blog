@@ -1,15 +1,19 @@
 <?php
+
 namespace app\modules\admin\service;
 
 
-class  ContentService {
+class  ContentService
+{
+    const CONTENT_TYPE_BLOG = 'blog';
+    const CONTENT_TYPE_NEWS = 'news';
 
 
-    public static function contentTypes()
+    public static function contentTypes() : array
     {
         return [
-          'blog',
-          'news'
+            self::CONTENT_TYPE_BLOG,
+            self::CONTENT_TYPE_NEWS
         ];
     }
 }

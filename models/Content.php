@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\helpers\Inflector;
 
 /**
  * This is the model class for table "content".
@@ -16,6 +17,7 @@ use Yii;
  * @property int|null $created_by
  * @property string|null $updated_on
  * @property int|null $updated_by
+ * @property int|null $content_category_id
  *
  * @property ContentInfo[] $contentInfos
  */
@@ -29,13 +31,21 @@ class Content extends \yii\db\ActiveRecord
         return 'content';
     }
 
+    public $file_name;
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            $this->slug = Inflector::slug($this->type, '-');
+        }
+    }
+
     /**
      * {@inheritdoc}
      */
     public function rules()
     {
         return [
-            [['status', 'is_deleted', 'cacheable', 'created_by', 'updated_by'], 'integer'],
+            [['status', 'is_deleted', 'cacheable', 'created_by', 'updated_by', 'content_category_id '], 'integer'],
             [['type', 'created_on', 'updated_on'], 'string', 'max' => 255],
         ];
     }
@@ -66,5 +76,10 @@ class Content extends \yii\db\ActiveRecord
     public function getContentInfos()
     {
         return $this->hasMany(ContentInfo::class, ['content_id' => 'id']);
+    }
+
+    public function getContentCategory()
+    {
+        return $this->hasOne(Categories::class, ['id' => 'content_category_id']);
     }
 }

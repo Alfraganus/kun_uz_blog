@@ -1,8 +1,13 @@
 <?php
 
+use app\models\Categories;
+use app\models\User;
+use kartik\file\FileInput;
+use yii\bootstrap4\ActiveForm;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
-use yii\widgets\ActiveForm;
 use yii\bootstrap4\Accordion;
+use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $content Content */
@@ -18,9 +23,9 @@ use yii\bootstrap4\Accordion;
                 <?php $form = ActiveForm::begin([
                     'options' => ['class' => 'form'],
                     'fieldConfig' => [
-                        'options' => ['class' => 'form-group'], // Apply Bootstrap's form-group class
-                        'inputOptions' => ['class' => 'form-control'], // Apply form-control class to inputs
-                        'labelOptions' => ['class' => 'form-label'], // Apply form-label class to labels
+                        'options' => ['class' => 'form-group'],
+                        'inputOptions' => ['class' => 'form-control'],
+                        'labelOptions' => ['class' => 'form-label'],
                         'template' => "{label}\n{input}\n<small class='form-text text-muted'>{hint}</small>\n{error}", // Match Bootstrap hint style
                     ],
                 ]); ?>
@@ -31,35 +36,20 @@ use yii\bootstrap4\Accordion;
                         [
                             'label' => 'General Information',
                             'content' =>
-                                $form->field($info, 'slug')->textInput(['maxlength' => true]) .
                                 $form->field($info, 'title')->textInput(['maxlength' => true]) .
-                                $form->field($content, 'status')->dropDownList([1 => 'Active', 0 => 'Inactive'], ['class' => 'form-control']),
-                            'options' => ['id' => 'general'],
+                                $form->field($info, 'description')->textarea(['rows' => 4]) .
+                                $form->field($info, 'content')->textarea(['rows' => 6]),
+
                         ],
                         [
                             'label' => 'Metadata',
                             'content' =>
-                                $form->field($content, 'created_on')->input('date') .
-                                $form->field($content, 'created_by')->textInput() .
-                                $form->field($content, 'updated_on')->input('date') .
-                                $form->field($content, 'updated_by')->textInput(),
-                            'options' => ['id' => 'metadata'],
-                        ],
-                        [
-                            'label' => 'Content',
-                            'content' =>
-                                $form->field($info, 'language')->textInput() .
-                                $form->field($info, 'description')->textarea(['rows' => 4]) .
-                                $form->field($info, 'content')->textarea(['rows' => 6]),
-                            'options' => ['id' => 'content'],
-                        ],
-                        [
-                            'label' => 'Additional Fields',
-                            'content' =>
                                 $form->field($info, 'content_blocks')->textarea(['rows' => 4]) .
                                 $form->field($info, 'meta')->textarea(['rows' => 3]),
-                            'options' => ['id' => 'additional-fields'],
+                            'options' => ['id' => 'metadata'],
                         ],
+
+
                     ],
                 ]) ?>
 
@@ -75,7 +65,30 @@ use yii\bootstrap4\Accordion;
                 <!-- Sidebar -->
                 <div class="card">
                     <div class="card-body">
-                        <?= $form->field($content, 'author_id')->textInput() ?>
+                        <?= $form->field($content, 'author_id')->dropDownList(ArrayHelper::map(
+                            User::find()->all(), 'id', 'username'
+                        )); ?>
+
+                        <?= $form->field($content, 'content_category_id')->dropDownList(ArrayHelper::map(
+                            Categories::find()->where(['category_type' => $type])->all(), 'id', 'category_name'
+                        )) ?>
+                        <?= $form->field($content, 'status')->dropDownList(
+                                [1 => 'Active', 0 => 'Inactive'], ['class' => 'form-control']);
+                       ?>
+                        <?= $form->field($info, 'language')->dropDownList(
+                            [1 => 'Active', 0 => 'Inactive'], ['class' => 'form-control']);
+                        ?>
+
+                        <?= $form->field($content, 'file_name')->widget(FileInput::classname(), [
+                            'options' => ['accept' => 'image/*'],
+                            'pluginOptions' => [
+                                'allowedFileExtensions' => ['jpg', 'png', 'jpeg', 'gif'],
+                                'maxFileSize' => 2000, // 2MB
+                                'showUpload' => true,
+                                'showRemove' => true,
+                                'uploadUrl' => Url::to(['media/upload']),
+                            ],
+                        ]); ?>
                     </div>
                 </div>
             </div>
