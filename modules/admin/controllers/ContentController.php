@@ -6,9 +6,13 @@ use app\models\Content;
 use app\models\ContentInfo;
 use app\models\searchmodel\ContentSearch;
 use app\modules\admin\service\ContentService;
+use app\modules\admin\service\MediaService;
+use Yii;
+use yii\base\DynamicModel;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
 
 /**
  * ContentController implements the CRUD actions for Content model.
@@ -67,11 +71,6 @@ class ContentController extends Controller
         ]);
     }
 
-    /**
-     * Creates a new Content model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return string|\yii\web\Response
-     */
     public function actionCreate($type = 'blog')
     {
         if (!in_array($type, ContentService::contentTypes())) {
@@ -81,9 +80,34 @@ class ContentController extends Controller
         $content = new Content();
         $info = new ContentInfo();
 
-        if ($this->request->isPost) {
-            if ($content->load($this->request->post()) && $content->save()) {
-                return $this->redirect(['view', 'id' => $content->id]);
+        if (Yii::$app->request->isPost) {
+
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+                if ($content->load(Yii::$app->request->post()) && $info->load(Yii::$app->request->post())) {
+                    $content->type = $type;
+                    if ($content->save() && $content->validate()) {
+                        $info->content_id = $content->id;
+                        $info->save();
+                        $uploadedFile = UploadedFile::getInstance($content, 'file_name');
+                        if ($uploadedFile) {
+                            $uploadResult = ( new MediaService())->actionUpload(
+                                $uploadedFile,
+                                $content
+                            );
+                            if (!$uploadResult['success']) {
+                                throw new \Exception('Failed to upload the file!');
+                            }
+                            $content->save(false);
+                        }
+
+                        $transaction->commit();
+                        return $this->redirect(['view', 'id' => $content->id]);
+                    }
+                }
+            } catch (\Exception $e) {
+                $transaction->rollBack();
+                Yii::$app->session->setFlash('error', $e->getMessage());
             }
         } else {
             $content->loadDefaultValues();

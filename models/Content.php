@@ -32,12 +32,6 @@ class Content extends \yii\db\ActiveRecord
     }
 
     public $file_name;
-    public function beforeSave($insert)
-    {
-        if (parent::beforeSave($insert)) {
-            $this->slug = Inflector::slug($this->type, '-');
-        }
-    }
 
     /**
      * {@inheritdoc}
@@ -45,8 +39,9 @@ class Content extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['status', 'is_deleted', 'cacheable', 'created_by', 'updated_by', 'content_category_id '], 'integer'],
+            [['status', 'is_deleted', 'cacheable', 'created_by', 'updated_by', 'content_category_id'], 'integer'],
             [['type', 'created_on', 'updated_on'], 'string', 'max' => 255],
+            [['file_name'], 'safe'],
         ];
     }
 
@@ -57,14 +52,15 @@ class Content extends \yii\db\ActiveRecord
     {
         return [
             'id' => Yii::t('app', 'ID'),
-            'type' => Yii::t('app', 'Type'),
-            'status' => Yii::t('app', 'Status'),
-            'is_deleted' => Yii::t('app', 'Is Deleted'),
-            'cacheable' => Yii::t('app', 'Cacheable'),
-            'created_on' => Yii::t('app', 'Created On'),
-            'created_by' => Yii::t('app', 'Created By'),
-            'updated_on' => Yii::t('app', 'Updated On'),
-            'updated_by' => Yii::t('app', 'Updated By'),
+            'file_name' => Yii::t('app', 'Rasm'),
+            'type' => Yii::t('app', 'Turi'),
+            'status' => Yii::t('app', 'Holati'),
+            'is_deleted' => Yii::t('app', 'O‘chirildi'),
+            'cacheable' => Yii::t('app', 'Keshlash mumkin'),
+            'created_on' => Yii::t('app', 'Yaratilgan sana'),
+            'created_by' => Yii::t('app', 'Kim tomonidan yaratilgan'),
+            'updated_on' => Yii::t('app', 'Yangilangan sana'),
+            'updated_by' => Yii::t('app', 'Kim tomonidan yangilangan'),
         ];
     }
 

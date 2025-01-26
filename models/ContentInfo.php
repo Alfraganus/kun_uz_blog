@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\helpers\Inflector;
 
 /**
  * This is the model class for table "content_info".
@@ -29,6 +30,14 @@ class ContentInfo extends \yii\db\ActiveRecord
         return 'content_info';
     }
 
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            $this->slug = Inflector::slug($this->title, '-');
+            return true; // This is necessary to continue the save process
+        }
+        return false; // In case parent::beforeSave($insert) returns false
+    }
     /**
      * {@inheritdoc}
      */
@@ -51,13 +60,13 @@ class ContentInfo extends \yii\db\ActiveRecord
     {
         return [
             'id' => Yii::t('app', 'ID'),
-            'content_id' => Yii::t('app', 'Content ID'),
-            'language' => Yii::t('app', 'Language'),
-            'title' => Yii::t('app', 'Title'),
+            'content_id' => Yii::t('app', 'Kontent ID'),
+            'language' => Yii::t('app', 'Til'),
+            'title' => Yii::t('app', 'Sarlavha'),
             'slug' => Yii::t('app', 'Slug'),
-            'description' => Yii::t('app', 'Description'),
-            'content' => Yii::t('app', 'Content'),
-            'content_blocks' => Yii::t('app', 'Content Blocks'),
+            'description' => Yii::t('app', 'Tavsif'),
+            'content' => Yii::t('app', 'Kontent'),
+            'content_blocks' => Yii::t('app', 'Kontent bloklari'),
             'meta' => Yii::t('app', 'Meta'),
         ];
     }

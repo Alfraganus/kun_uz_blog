@@ -1,41 +1,38 @@
 <?php
+
 namespace app\modules\admin\service;
 
+use app\models\Content;
 use app\models\Media;
 use Yii;
 use yii\base\Model;
 use yii\web\UploadedFile;
 
-class MediaService {
-    public function actionUpload(UploadedFile $uploadedFile, Model $model)
+class MediaService
+{
+    public function actionUpload(UploadedFile $uploadedFile, Content $content)
     {
         $model = new Media();
 
-        if (Yii::$app->request->isPost) {
-            $uploadedFile = UploadedFile::getInstanceByName('file');
+        $uploadPath = Yii::getAlias('@webroot/uploads/');
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0777, true);
+        }
 
-            if ($uploadedFile) {
-                $uploadPath = Yii::getAlias('@webroot/uploads/');
-                if (!is_dir($uploadPath)) {
-                    mkdir($uploadPath, 0777, true);
-                }
+        $fileName = uniqid() . '.' . $uploadedFile->extension;
+        $filePath = $uploadPath . $fileName;
 
-                $fileName = uniqid() . '.' . $uploadedFile->extension;
-                $filePath = $uploadPath . $fileName;
+        if ($uploadedFile->saveAs($filePath)) {
+            $model->file_name = sprintf('%s%s'.'%s',  uniqid(),$uploadedFile->name, $uploadedFile->extension);
+            $model->file_url = "/uploads/$filePath";
+            $model->object_id = $content->id;
+            $model->model_class = $content::className();
 
-                if ($uploadedFile->saveAs($filePath)) {
-                    $model->file_name = $uploadedFile->name;
-                    $model->file_url = Yii::getAlias('@web/uploads/') . $fileName;
-                    $model->object_id =null;
-                    $model->model_class =null;
-
-                    if ($model->save()) {
-                        return [
-                            'success' => true,
-                            'file_url' => $model->file_url,
-                        ];
-                    }
-                }
+            if ($model->save(false)) {
+                return [
+                    'success' => true,
+                    'file_url' => $model->file_url,
+                ];
             }
         }
 

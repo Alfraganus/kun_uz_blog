@@ -3,6 +3,7 @@
 use app\models\Categories;
 use app\models\User;
 use kartik\file\FileInput;
+use mihaildev\ckeditor\CKEditor;
 use yii\bootstrap4\ActiveForm;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
@@ -21,7 +22,10 @@ use yii\helpers\Url;
             <div class="col-md-9">
                 <!-- Main Form Section -->
                 <?php $form = ActiveForm::begin([
-                    'options' => ['class' => 'form'],
+                    'options' => [
+                        'class' => 'form',
+                        'enctype' => 'multipart/form-data',
+                    ],
                     'fieldConfig' => [
                         'options' => ['class' => 'form-group'],
                         'inputOptions' => ['class' => 'form-control'],
@@ -38,7 +42,14 @@ use yii\helpers\Url;
                             'content' =>
                                 $form->field($info, 'title')->textInput(['maxlength' => true]) .
                                 $form->field($info, 'description')->textarea(['rows' => 4]) .
-                                $form->field($info, 'content')->textarea(['rows' => 6]),
+                                $form->field($info, 'content')->widget(CKEditor::className(), [
+                                    'editorOptions' => [
+                                        'preset' => 'standard',
+                                        'inline' => false,
+                                        'height' => 300,
+                                        'allowedContent' => true,
+                                    ],
+                                ]),
 
                         ],
                         [
@@ -54,12 +65,7 @@ use yii\helpers\Url;
                 ]) ?>
 
                 <!-- Submit Button -->
-                <div class="form-group">
-                    <?= Html::submitButton('Save', ['class' => 'btn btn-primary']) ?>
-                    <!-- Apply primary Bootstrap button -->
-                </div>
 
-                <?php ActiveForm::end(); ?>
             </div>
             <div class="col-md-3">
                 <!-- Sidebar -->
@@ -75,24 +81,43 @@ use yii\helpers\Url;
                         <?= $form->field($content, 'status')->dropDownList(
                                 [1 => 'Active', 0 => 'Inactive'], ['class' => 'form-control']);
                        ?>
-                        <?= $form->field($info, 'language')->dropDownList(
-                            [1 => 'Active', 0 => 'Inactive'], ['class' => 'form-control']);
-                        ?>
+                        <?= $form->field($info, 'language')->dropDownList(Yii::$app->params['languages']);?>
 
-                        <?= $form->field($content, 'file_name')->widget(FileInput::classname(), [
-                            'options' => ['accept' => 'image/*'],
-                            'pluginOptions' => [
-                                'allowedFileExtensions' => ['jpg', 'png', 'jpeg', 'gif'],
-                                'maxFileSize' => 2000, // 2MB
-                                'showUpload' => true,
-                                'showRemove' => true,
-                                'uploadUrl' => Url::to(['media/upload']),
-                            ],
-                        ]); ?>
+                      <center>
+                          <div class="image-preview">
+                              <img id="image-preview" src="#" alt="Image preview" style="max-width: 200px; max-height: 200px; display: none;" />
+                          </div>
+                      </center>
+                        <?= $form->field($content, "file_name")->fileInput(['id' => 'file-input', 'accept' => 'image/*']); ?>
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="form-group">
+                    <?= Html::submitButton('Save', ['class' => 'btn btn-primary']) ?>
+                </div>
 
+                <?php ActiveForm::end(); ?>
+            </div>
         </div>
     </div>
-</section>
+</section
+
+
+
+<?php
+$this->registerJs("
+    document.getElementById('file-input').addEventListener('change', function(event) {
+        var file = event.target.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var imagePreview = document.getElementById('image-preview');
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block'; 
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+", \yii\web\View::POS_END);
+?>
