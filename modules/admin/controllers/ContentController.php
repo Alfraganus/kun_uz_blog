@@ -117,25 +117,53 @@ class ContentController extends Controller
         ]);
     }
 
-    /**
-     * Updates an existing Content model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param int $id ID
-     * @return string|\yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+    public function actionUpdate($id, $lang, $type)
+    {
+        $content = $this->findModel($id);
+        $info = ContentInfo::findOne(['content_id' => $id, 'language' => $lang]);
+
+        if (!$info) {
+            $info = new ContentInfo();
+            $info->language = $lang;
+        }
+
+        if (Yii::$app->request->isPost) {
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+                if ($content->load(Yii::$app->request->post()) && $info->load(Yii::$app->request->post())) {
+                    $info->content_id = $content->id;
+                    if ($content->save(false) && $info->save(false)) {
+                        $uploadedFile = UploadedFile::getInstance($content, 'file_name');
+                        if ($uploadedFile) {
+                            $uploadResult = (new MediaService())->actionUpload(
+                                $uploadedFile,
+                                $content
+                            );
+                            if (!$uploadResult['success']) {
+                                throw new \Exception('Failed to upload the file!');
+                            }
+                            $content->save(false);
+                        }
+
+                        $transaction->commit();
+                        return $this->redirect(['view', 'id' => $content->id]);
+                    }
+                }
+            } catch (\Exception $e) {
+                $transaction->rollBack();
+                Yii::$app->session->setFlash('error', $e->getMessage());
+            }
         }
 
         return $this->render('update', [
-            'model' => $model,
+            'content' => $content,
+            'info' => $info,
+            'lang' => $lang,
+            'type' => $type,
         ]);
     }
+
 
     /**
      * Deletes an existing Content model.

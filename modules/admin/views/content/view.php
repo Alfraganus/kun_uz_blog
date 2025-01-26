@@ -34,9 +34,9 @@ $this->params['breadcrumbs'][] = $this->title;
                 'value' => function ($model) {
                     $media = $model->media;
                     if ($media) {
-                        return Html::img(sprintf('/uploads/%s',$media->file_name), ['width' => '100px', 'height' => 'auto']);
+                        return Html::img(sprintf('/uploads/%s',$media->file_name), ['width' => '100px', 'height' => '100px']);
                     }
-                    return '';
+                    return Html::img(sprintf('/images/nophoto.avif'),['width' => '100px', 'height' => '100px']);
                 },
                 'format' => 'raw',
             ],

@@ -14,6 +14,8 @@ use yii\grid\GridView;
 
 $this->title = 'Contents';
 $this->params['breadcrumbs'][] = $this->title;
+$languages = Yii::$app->params['languages'];
+$currentLanguage = Yii::$app->language;
 ?>
 <div class="content-index">
 
@@ -33,9 +35,9 @@ $this->params['breadcrumbs'][] = $this->title;
                 'value' => function ($model) {
                     $media = $model->media;
                     if ($media) {
-                        return Html::img(sprintf('/uploads/%s',$media->file_name), ['width' => '100px', 'height' => 'auto']);
+                        return Html::img(sprintf('/uploads/%s',$media->file_name), ['width' => '100px', 'height' => '100px']);
                     }
-                    return '';
+                    return Html::img(sprintf('/images/nophoto.avif'),['width' => '100px', 'height' => '100px']);
                 },
                 'format' => 'raw',
             ],
@@ -88,9 +90,51 @@ $this->params['breadcrumbs'][] = $this->title;
             'created_on',
             [
                 'class' => ActionColumn::className(),
+                'template' => '{view} {delete} {languages}',
+                'buttons' => [
+                    'languages' => function ($url, $model, $key) {
+                        $languages = Yii::$app->params['languages'];
+                        $filledLanguages = ArrayHelper::getColumn($model->contentInfos, 'language');
+                        $buttons = '';
+
+                        foreach ($languages as $langKey => $langName) {
+                            if (in_array($langKey, $filledLanguages)) {
+                                $buttons .= Html::a(
+                                    Yii::t('app', $langName),
+                                    ['update',
+                                        'id' => $model->id,
+                                        'lang' => $langKey,
+                                        'type' => 'blog'
+                                    ],
+                                    [
+                                        'class' => 'btn btn-success btn-sm',
+                                        'style' => 'margin: 2px;',
+                                        'title' => Yii::t('app', 'Edit Language Content'),
+                                    ]
+                                );
+                            } else {
+                                $buttons .= Html::a(
+                                    Yii::t('app', $langName),
+                                    ['update',
+                                        'id' => $model->id,
+                                        'lang' => $langKey,
+                                        'type' => 'blog'
+                                    ],
+                                    [
+                                        'class' => 'btn btn-secondary btn-sm',
+                                        'style' => 'margin: 2px;',
+                                        'title' => Yii::t('app', 'Add Language Content'),
+                                    ]
+                                );
+                            }
+                        }
+
+                        return $buttons;
+                    },
+                ],
                 'urlCreator' => function ($action, Content $model, $key, $index, $column) {
                     return Url::toRoute([$action, 'id' => $model->id]);
-                 }
+                },
             ],
         ],
     ]); ?>

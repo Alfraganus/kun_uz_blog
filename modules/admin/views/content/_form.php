@@ -81,13 +81,30 @@ use yii\helpers\Url;
                         <?= $form->field($content, 'status')->dropDownList(
                                 [1 => 'Active', 0 => 'Inactive'], ['class' => 'form-control']);
                        ?>
-                        <?= $form->field($info, 'language')->dropDownList(Yii::$app->params['languages']);?>
+                        <?php if ($content->isNewRecord): ?>
+                            <?= $form->field($info, 'language')->dropDownList(Yii::$app->params['languages']); ?>
+                        <?php else: ?>
+                            <?= $form->field($info, 'language')->textInput([
+                                'value' => $lang,
+                                'readonly' => true,
+                            ]); ?>
+                        <?php endif; ?>
 
-                      <center>
-                          <div class="image-preview">
-                              <img id="image-preview" src="#" alt="Image preview" style="max-width: 200px; max-height: 200px; display: none;" />
-                          </div>
-                      </center>
+                        <center>
+                            <div class="image-preview">
+                                <?php if ($content->media && isset($content->media->file_name)): ?>
+                                    <img id="image-preview"
+                                         src="/uploads/<?= $content->media->file_name ?>"
+                                         alt="Image preview"
+                                         style="max-width: 200px; max-height: 200px;" />
+                                <?php else: ?>
+                                    <img id="image-preview"
+                                         src="#"
+                                         alt="Image preview"
+                                         style="max-width: 200px; max-height: 200px; display: none;" />
+                                <?php endif; ?>
+                            </div>
+                        </center>
                         <?= $form->field($content, "file_name")->fileInput(['id' => 'file-input', 'accept' => 'image/*']); ?>
                     </div>
                 </div>

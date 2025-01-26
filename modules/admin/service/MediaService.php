@@ -12,7 +12,17 @@ class MediaService
 {
     public function actionUpload(UploadedFile $uploadedFile, Content $content)
     {
-        $model = new Media();
+        $model = Media::findOne(['object_id' => $content->id, 'model_class' => $content::className()]);
+        if (!$model) {
+            $model = new Media();
+            $model->object_id = $content->id;
+            $model->model_class = $content::className();
+        } else {
+            $existingFilePath = '/web/'.$model->file_name;
+            if (is_file($existingFilePath)) {
+                unlink($existingFilePath);
+            }
+        }
 
         $uploadPath = Yii::getAlias('@webroot/uploads/');
         if (!is_dir($uploadPath)) {
