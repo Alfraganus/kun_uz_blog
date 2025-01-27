@@ -120,6 +120,9 @@ class ContentController extends Controller
 
     public function actionUpdate($id, $lang, $type)
     {
+        if (!in_array($type, ContentService::contentTypes())) {
+            throw new NotFoundHttpException('Page not found.');
+        }
         $content = $this->findModel($id);
         $info = ContentInfo::findOne(['content_id' => $id, 'language' => $lang]);
 
