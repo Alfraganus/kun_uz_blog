@@ -18,7 +18,7 @@ Bajaruvchi: **G‘ulomjon Sulaymonov**
 ---
 
 ## O‘rnatish va ishga tushirish
-1. **composer install
+1. **composer install**
 2. **php yii migrate** buyrug‘ini bajaring.  
 
 3. **php yii init/make-env** buyrug‘ini bajaring (to‘g‘ri `.env` sozlamalarini o‘rnatish yoki ular mavjud bo‘lmasa, yaratish uchun).
