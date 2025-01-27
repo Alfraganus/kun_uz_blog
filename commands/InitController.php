@@ -47,13 +47,14 @@ class InitController extends Controller
     public function actionStart()
     {
         $envFilePath = \Yii::getAlias('@app') . '/.env';
+        $this->stdout("Assalomu alaykum, kun.uz test vazifasiga xush kelibsiz!\n");
 
         if (!file_exists($envFilePath)) {
-            $this->stderr("Assalomu alykum, sizda hali .env yaratilmagan, iltimos  php yii init/make-env orqali yarating yoki root fayl ichida .env yaratib oling!\n");
+            $this->stderr("Sizda hali .env yaratilmagan, iltimos  php yii init/make-env orqali yarating yoki root fayl ichida .env yaratib oling!\n");
             return ExitCode::OK;
         }
 
-        $this->stdout(".env file exists.\n");
+        $this->stdout(".env fayl mavjud.\n");
 
         $envData = parse_ini_file($envFilePath);
 
