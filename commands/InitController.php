@@ -9,13 +9,47 @@ use yii\helpers\Console;
 
 class InitController extends Controller
 {
+    public function actionMakeEnv()
+    {
+        $dbHost = $this->prompt('MySQL server manzilini kiriting (misol: localhost):', [
+            'required' => true,
+            'default' => 'localhost',
+        ]);
+        $dbName = $this->prompt('Ma’lumotlar bazasi nomini kiriting (misol uchun: kunuz):', [
+            'required' => true,
+            'default' => 'kunuz',
+        ]);
+        $dbUsername = $this->prompt('MySQL username  kiriting (misol uchun: root):', [
+            'required' => true,
+            'default' => 'root',
+        ]);
+        $dbPassword = $this->prompt('MySQL parolini kiriting (bo’sh qoldirish mumkin):', [
+            'required' => false,
+        ]);
+
+                $envContent = <<<ENV
+        DB_HOST=$dbHost
+        DB_NAME=$dbName
+        DB_USERNAME=$dbUsername
+        DB_PASSWORD=$dbPassword
+        ENV;
+
+        $filePath = \Yii::getAlias('@app') . '/.env';
+        if (file_put_contents($filePath, $envContent)) {
+            $this->stdout(".env fayli muvaffaqiyatli yaratildi!\n", Console::FG_GREEN);
+        } else {
+            $this->stderr(".env faylini yaratishda xatolik yuz berdi!\n", Console::FG_RED);
+        }
+
+        return ExitCode::OK;
+    }
 
     public function actionStart()
     {
         $envFilePath = \Yii::getAlias('@app') . '/.env';
 
         if (!file_exists($envFilePath)) {
-            $this->stderr("Welcome to Kun.uz blog system. To continue installation, please create a .env file!\n");
+            $this->stderr("Assalomu alykum, sizda hali .env yaratilmagan, iltimos  php yii init/make-env orqali yarating yoki root fayl ichida .env yaratib oling!\n");
             return ExitCode::OK;
         }
 
@@ -29,11 +63,11 @@ class InitController extends Controller
         $dbPassword = $envData['DB_PASSWORD'] ?? null;
 
         if (!$dbHost || !$dbName || !$dbUsername) {
-            $this->stderr("Database credentials are incomplete in the .env file. Please check and try again.\n");
+            $this->stderr("Databaza  maʼlumotlari .env faylida toʻliq emas, iltimos tekshirib, qayta urinib koʻring.\n");
             return ExitCode::OK;
         }
 
-        $this->stdout("Checking database connection...\n");
+        $this->stdout("Databazaga ulanish tekshirilmoqda...\n");
 
         try {
             $dsn = "mysql:host=$dbHost";
@@ -41,33 +75,33 @@ class InitController extends Controller
 
             $stmt = $pdo->query("SHOW DATABASES LIKE '$dbName'");
             if ($stmt->rowCount() > 0) {
-                $this->stdout("Database '$dbName' already exists.\n", Console::FG_GREEN);
+                $this->stdout("Maʼlumotlar bazasi '$dbName' mavjud.\n", Console::FG_GREEN);
             } else {
-                $this->stdout("Database '$dbName' does not exist.\n", Console::FG_YELLOW);
+                $this->stdout("Maʼlumotlar bazasi '$dbName' mavjud emas.\n", Console::FG_YELLOW);
 
-                if ($this->confirm("Do you want to create the database '$dbName' now?")) {
+                if ($this->confirm("'$dbName' maʼlumotlar bazasini yaratilsinmi?")) {
                     $pdo->exec("CREATE DATABASE `$dbName` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-                    $this->stdout("Database '$dbName' has been created successfully.\n", Console::FG_GREEN);
+                    $this->stdout("'$dbName' maʼlumotlar bazasi muvaffaqiyatli yaratildi.\n", Console::FG_GREEN);
                 } else {
-                    $this->stderr("Database '$dbName' was not created. Exiting setup.\n", Console::FG_RED);
+                    $this->stderr("Databze '$dbName' yaralmadi. Ushbu sozlamadan uzilmoqda.\n", Console::FG_RED);
                 }
             }
 
-            if ($this->confirm("Do you want to run migrations now?")) {
-                $this->stdout("Running migrations...\n", Console::FG_GREEN);
+            if ($this->confirm("Migratsiyalar yurgizilsinmi?")) {
+                $this->stdout("Migratsiyalar yurgisilmoqda...\n", Console::FG_GREEN);
 
                 $migrationController = new \yii\console\controllers\MigrateController('migrate', \Yii::$app);
                 $migrationController->interactive = true;
                 $migrationController->runAction('up', ['interactive' => true]);
 
-                $this->stdout("Migrations completed successfully.\n", Console::FG_GREEN);
+                $this->stdout("Migratsiyalar muvaffaqiyatli yakunlandi!\n", Console::FG_GREEN);
             } else {
-                $this->stdout("Migrations skipped. You can run them later using the `./yii migrate` command.\n", Console::FG_YELLOW);
+                $this->stdout("Migratsiya o'tkazib yuborildi. Siz ularni keginroq './yii migrate' buyrug'i yordamida ishga tushirishingiz mumkin.\n", Console::FG_YELLOW);
             }
 
-            if ($this->confirm("Do you want to create an admin user now?")) {
-                $username = $this->prompt('Enter admin username');
-                $password = $this->prompt('Enter admin password', [
+            if ($this->confirm("Adminkaga kirish uchun admin user yaralsinmi ?")) {
+                $username = $this->prompt('admin username kiriting');
+                $password = $this->prompt('admin parol kiriting', [
                     'required' => true,
                     'noEcho' => true,
                 ]);
@@ -80,14 +114,14 @@ class InitController extends Controller
                 $adminUser->access_token = \Yii::$app->security->generateRandomString();
 
                 if ($adminUser->save()) {
-                    $this->stdout("Admin user '$username' has been created successfully.\n", Console::FG_GREEN);
+                    $this->stdout("Admin user '$username' muvaffaqiyatli yaratildi.\n", Console::FG_GREEN);
                 } else {
-                    $this->stderr("Error creating admin user: " . implode(", ", $adminUser->errors) . "\n", Console::FG_RED);
+                    $this->stderr("Admin user yaratishda muommo bor: " . implode(", ", $adminUser->errors) . "\n", Console::FG_RED);
                 }
             }
 
         } catch (\PDOException $e) {
-            $this->stderr("Error connecting to the database: " . $e->getMessage() . "\n", Console::FG_RED);
+            $this->stderr("Databazaga ulanishda hatolik bor: " . $e->getMessage() . "\n", Console::FG_RED);
         }
 
         return ExitCode::OK;
